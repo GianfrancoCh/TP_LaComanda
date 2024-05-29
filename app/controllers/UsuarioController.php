@@ -75,6 +75,8 @@ class UsuarioController extends Usuario implements IApiUsable
     }
 
     public function Test($hola){
+      $hola = "string";
       return $hola;
+
     }
 }

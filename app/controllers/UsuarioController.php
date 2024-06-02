@@ -10,11 +10,13 @@ class UsuarioController extends Usuario implements IApiUsable
 
         $usuario = $parametros['usuario'];
         $clave = $parametros['clave'];
+        $rol = $parametros['rol'];
 
         // Creamos el usuario
         $usr = new Usuario();
         $usr->usuario = $usuario;
         $usr->clave = $clave;
+        $usr->rol = $rol;
         $usr->crearUsuario();
 
         $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
@@ -49,9 +51,11 @@ class UsuarioController extends Usuario implements IApiUsable
     public function ModificarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-
-        $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
+        $id = $parametros['id'];
+        $usuario = $parametros['usuario'];
+        $clave = $parametros['clave'];
+        $rol = $parametros['rol'];
+        Usuario::modificarUsuario($id,$usuario,$clave,$rol);
 
         $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 

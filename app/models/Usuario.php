@@ -21,8 +21,6 @@ class Usuario
 
         return $objAccesoDatos->obtenerUltimoId();
     }
-
-    /* test*/
     public static function TraerTodosLosUsuarios()
     {
         $objetoAccesoDato = AccesoDatos::obtenerInstancia();
@@ -43,7 +41,7 @@ class Usuario
     public static function obtenerUsuario($usuario)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, clave FROM usuarios WHERE usuario = :usuario");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, clave, rol FROM usuarios WHERE usuario = :usuario");
         $consulta->bindValue(':usuario', $usuario, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -62,13 +60,5 @@ class Usuario
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
     }
 
-    public static function borrarUsuario($usuario)
-    {
-        $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("UPDATE usuarios SET fechaBaja = :fechaBaja WHERE id = :id");
-        $fecha = new DateTime(date("d-m-Y"));
-        $consulta->bindValue(':id', $usuario, PDO::PARAM_INT);
-        $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
-        $consulta->execute();
-    }
+   
 }

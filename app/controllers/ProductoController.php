@@ -1,25 +1,24 @@
 <?php
-require_once './models/Usuario.php';
+require_once './models/Producto.php';
 require_once './interfaces/IApiUsable.php';
 
-class UsuarioController extends Usuario implements IApiUsable
+class ProductoController extends Producto implements IApiUsable
 {
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
 
-        $usuario = $parametros['usuario'];
-        $clave = $parametros['clave'];
-        $rol = $parametros['rol'];
+        $nombre = $parametros['nombre'];
+        $tipo = $parametros['tipo'];
+        $precio = $parametros['precio'];
 
-        // Creamos el usuario
-        $usr = new Usuario();
-        $usr->usuario = $usuario;
-        $usr->clave = $clave;
-        $usr->rol = $rol;
-        $usr->crearUsuario();
+        $producto = new Producto();
+        $producto->nombre = $nombre;
+        $producto->tipo = $tipo;
+        $producto->precio = $precio;
+        $producto->crearProducto();
 
-        $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
+        $payload = json_encode(array("mensaje" => "Producto creado con exito"));
 
         $response->getBody()->write($payload);
         return $response
@@ -28,10 +27,9 @@ class UsuarioController extends Usuario implements IApiUsable
 
     public function TraerUno($request, $response, $args)
     {
-        // Buscamos usuario por nombre
-        $usr = $args['usuario'];
-        $usuario = Usuario::obtenerUsuario($usr);
-        $payload = json_encode($usuario);
+        $nombre = $args['nombre'];
+        $producto = Producto::obtenerProducto($nombre);
+        $payload = json_encode($producto);
 
         $response->getBody()->write($payload);
         return $response
@@ -40,8 +38,8 @@ class UsuarioController extends Usuario implements IApiUsable
 
     public function TraerTodos($request, $response, $args)
     {
-        $lista = Usuario::obtenerTodos();
-        $payload = json_encode(array("listaUsuario" => $lista));
+        $lista = Producto::obtenerTodos();
+        $payload = json_encode(array("listaProductos" => $lista));
 
         $response->getBody()->write($payload);
         return $response
@@ -63,5 +61,6 @@ class UsuarioController extends Usuario implements IApiUsable
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
 
 }

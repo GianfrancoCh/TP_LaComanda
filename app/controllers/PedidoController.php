@@ -1,6 +1,7 @@
 <?php
 require_once './models/Pedido.php';
 require_once './interfaces/IApiUsable.php';
+require_once './models/Producto.php';
 
 class PedidoController extends Pedido implements IApiUsable
 {
@@ -9,9 +10,8 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
 
         $id_mesa = $parametros['id_mesa'];
-        $id_usuario = $parametros['id_usuario'];
-        $tiempoEstimado = $parametros['tiempoEstimado'];
-        $tiempoFinal = $parametros['tiempoFinal'];
+        $cliente = $parametros['cliente'];
+        $tiempo = $parametros['tiempo'];
         // $foto = $parametros['foto'];
         $fecha = date("Y-m-d");
         $estado = $parametros['estado'];
@@ -19,17 +19,50 @@ class PedidoController extends Pedido implements IApiUsable
 
         $pedido = new Pedido();
         $pedido->id_mesa = $id_mesa;
-        $pedido->id_usuario = $id_usuario;
-        $pedido->tiempoEstimado = $tiempoEstimado;
-        $pedido->tiempoFinal = $tiempoFinal;
-        $pedido->tiempoEstimado = $tiempoEstimado;
+        $pedido->cliente = $cliente;
+        $pedido->tiempo = $tiempo;
         // $pedido->foto = $foto;
         $pedido->fecha = $fecha;
         $pedido->estado = $estado;
 
-        $pedido->crearProducto();
+        $test = $pedido->crearProducto();
 
-        $payload = json_encode(array("mensaje" => "Pedido creado con exito"));
+
+        $payload = json_encode(array("mensaje" => "Pedido creado con exito con ID: ". $test));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function CargarPedido($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        
+        $id_mesa = $parametros['id_mesa'];
+        $cliente = $parametros['cliente'];
+        $tiempo = $parametros['tiempo'];
+        // $foto = $parametros['foto'];
+        $fecha = date("Y-m-d");
+        $estado = $parametros['estado'];
+
+        if(isset($_POST['id_pedido'])){
+          
+        }
+
+
+        $pedido = new Pedido();
+        $pedido->id_mesa = $id_mesa;
+        $pedido->cliente = $cliente;
+        $pedido->tiempo = $tiempo;
+        // $pedido->foto = $foto;
+        $pedido->fecha = $fecha;
+        $pedido->estado = $estado;
+
+        $test = $pedido->crearProducto();
+
+
+        $payload = json_encode(array("mensaje" => "Pedido creado con exito con ID: ". $test));
 
         $response->getBody()->write($payload);
         return $response

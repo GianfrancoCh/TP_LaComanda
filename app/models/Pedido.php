@@ -6,9 +6,8 @@ class Pedido
     
 	public $id;
     public $id_mesa;
-    public $id_usuario;
-    public $tiempoEstimado;
-    public $tiempoFinal;
+    public $cliente;
+    public $tiempo;
     public $foto;
     public $fecha;
     public $estado;
@@ -16,11 +15,11 @@ class Pedido
     public function crearProducto()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id_mesa,id_usuario,tiempoEstimado,fecha,estado)
-         VALUES (:id_mesa, :id_usuario, :tiempoEstimado, :fecha, :estado)");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id_mesa,cliente,tiempo,fecha,estado)
+         VALUES (:id_mesa, :cliente, :tiempo, :fecha, :estado)");
         $consulta->bindValue(':id_mesa', $this->id_mesa, PDO::PARAM_INT);
-        $consulta->bindValue(':id_usuario', $this->id_usuario, PDO::PARAM_INT);
-        $consulta->bindValue(':tiempoEstimado', $this->tiempoEstimado, PDO::PARAM_INT);
+        $consulta->bindValue(':cliente', $this->cliente, PDO::PARAM_INT);
+        $consulta->bindValue(':tiempo', $this->tiempo, PDO::PARAM_INT);
         $consulta->bindValue(':fecha', $this->fecha, PDO::PARAM_STR);
         $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
 

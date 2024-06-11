@@ -22,6 +22,9 @@ require_once './controllers/PedidoController.php';
 require_once './controllers/MesaController.php';
 
 
+require_once './middlewares/RolUsuariosMiddleware.php';
+
+
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
@@ -39,8 +42,8 @@ $app->addBodyParsingMiddleware();
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno');
-  });
+    $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new UsuarioRolMiddlware());
+});
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \ProductoController::class . ':TraerTodos');

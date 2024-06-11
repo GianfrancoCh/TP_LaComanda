@@ -13,13 +13,11 @@ class PedidoProductos
     public function crearPedidoProducto()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos_productos (id_pedido,id_producto,id_mesa,tiempo,estado)
-         VALUES (:id_pedido, :id_producto, :id_mesa, :tiempo, :estado)");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos_productos (id_pedido,id_producto,id_mesa,estado) VALUES (:id_pedido, :id_producto, :id_mesa, 'pedido')");
         $consulta->bindValue(':id_pedido', $this->id_pedido, PDO::PARAM_INT);
         $consulta->bindValue(':id_producto', $this->id_producto, PDO::PARAM_INT);
         $consulta->bindValue(':id_mesa', $this->id_mesa, PDO::PARAM_INT);
-        $consulta->bindValue(':tiempo', $this->tiempo, PDO::PARAM_INT);
-        $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+        // $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
 
         $consulta->execute();
 

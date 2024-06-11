@@ -2,73 +2,59 @@
 require_once './models/Pedido.php';
 require_once './interfaces/IApiUsable.php';
 require_once './models/Producto.php';
+require_once './models/PedidoProductos.php';
 
 class PedidoController extends Pedido implements IApiUsable
 {
+  
+
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-
         $id_mesa = $parametros['id_mesa'];
+        $id_producto = $parametros['id_producto'];
         $cliente = $parametros['cliente'];
         $tiempo = $parametros['tiempo'];
         // $foto = $parametros['foto'];
         $fecha = date("Y-m-d");
         $estado = $parametros['estado'];
 
+        if(isset($parametros['id_pedido'])){
 
-        $pedido = new Pedido();
-        $pedido->id_mesa = $id_mesa;
-        $pedido->cliente = $cliente;
-        $pedido->tiempo = $tiempo;
-        // $pedido->foto = $foto;
-        $pedido->fecha = $fecha;
-        $pedido->estado = $estado;
-
-        $test = $pedido->crearProducto();
-
-
-        $payload = json_encode(array("mensaje" => "Pedido creado con exito con ID: ". $test));
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-
-    public function CargarPedido($request, $response, $args)
-    {
-        $parametros = $request->getParsedBody();
-        
-        $id_mesa = $parametros['id_mesa'];
-        $cliente = $parametros['cliente'];
-        $tiempo = $parametros['tiempo'];
-        // $foto = $parametros['foto'];
-        $fecha = date("Y-m-d");
-        $estado = $parametros['estado'];
-
-        if(isset($_POST['id_pedido'])){
+          $id_pedido = $parametros['id_pedido'];
+          self::AgregarPedidoProducto($id_pedido, $id_producto, $id_mesa);
+          $mensaje = "Producto añadido al pedido existente con ID: $id_pedido";
           
-        }
+        }else{
+          $pedido = new Pedido();
+          $pedido->id_mesa = $id_mesa;
+          $pedido->cliente = $cliente;
+          $pedido->tiempo = $tiempo;
+          // $pedido->foto = $foto;
+          $pedido->fecha = $fecha;
 
 
-        $pedido = new Pedido();
-        $pedido->id_mesa = $id_mesa;
-        $pedido->cliente = $cliente;
-        $pedido->tiempo = $tiempo;
-        // $pedido->foto = $foto;
-        $pedido->fecha = $fecha;
-        $pedido->estado = $estado;
+          $id_pedido = $pedido->crearPedido();
+          self::AgregarPedidoProducto($id_pedido, $id_producto, $id_mesa);
+          $mensaje = "Pedido creado con éxito con ID: " . $id_pedido;
+          //Modificar estado mesa
 
-        $test = $pedido->crearProducto();
+        }   
 
-
-        $payload = json_encode(array("mensaje" => "Pedido creado con exito con ID: ". $test));
-
+        $payload = json_encode(array("mensaje" => $mensaje));
         $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
+  private static function AgregarPedidoProducto($id_pedido, $id_producto, $id_mesa)
+	{
+      $pedidoProd = new PedidoProductos();
+      $pedidoProd->id_producto = $id_producto;
+      $pedidoProd->id_mesa = $id_mesa;
+      $pedidoProd->id_pedido = $id_pedido;
+
+      $pedidoProd->crearPedidoProducto();
+	}
     public function TraerUno($request, $response, $args)
     {
         $id = $args['id'];

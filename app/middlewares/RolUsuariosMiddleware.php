@@ -4,14 +4,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response;
 
-class UsuarioRolMiddlware
+class UsuarioRolMiddleware
 {
    
    
     public function __invoke(Request $request, RequestHandler $handler): Response
     {   
         $response = new Response();
-        $parametros = $request->getQueryParams();
+        $parametros = $request->getParsedBody();
 
         if(isset($parametros['rol'])){
             
@@ -26,6 +26,57 @@ class UsuarioRolMiddlware
             }
         }else{
             $payload = json_encode(array("mensaje" => "Rol no especificado"));
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+}
+
+class UsuarioLoginMiddleware
+{
+    public function __invoke(Request $request, RequestHandler $handler): Response
+    {
+        $response = new Response();
+        $parametros = $request->getParsedBody();
+
+        if (isset($parametros['id']) && isset($parametros['usuario']) && isset($parametros['clave'])) {
+            
+            $usuario = Usuario::obtenerUsuarioId($parametros['id']);
+            
+            if(!empty($usuario)){
+
+                if (!strcasecmp($parametros['usuario'], $usuario->usuario) && password_verify($parametros['clave'], $usuario->clave)){
+
+                    if($usuario->estado == 'activo'){
+                        
+                        $nombre = $usuario->usuario;
+                        $rol = $usuario->rol;    
+                        $token = AutentificadorJWT::CrearToken(array('usuario' => $nombre, 'rol' => $rol));
+                        $payload = json_encode(array("mensaje" => "Logueado con exito como " . $usuario->usuario, "token"=> $token));
+                        
+    
+                    }else{
+    
+                        $payload = json_encode(array("mensaje" => "Usuario inactivo"));
+                    }
+                }else{
+
+                    $payload = json_encode(array("mensaje" => "Usuario o clave incorrecta"));
+
+
+                }
+                
+                
+            }else{
+                $payload = json_encode(array("mensaje" => "Usuario con ID no existente"));
+            }
+            $response->getBody()->write($payload);
+
+        } else {
+            $response = new Response();
+            $payload = json_encode(array("mensaje" => "Faltan campos para loguearse"));
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');
         }

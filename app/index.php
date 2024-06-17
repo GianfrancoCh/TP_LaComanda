@@ -19,11 +19,10 @@ require_once './db/AccesoDatos.php';
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/PedidoController.php';
-require_once './controllers/MesaController.php';
-
+require_once './utils/AutentificadorJWT.php';
 
 require_once './middlewares/RolUsuariosMiddleware.php';
-
+require_once './middlewares/AuthMiddleware.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -42,7 +41,7 @@ $app->addBodyParsingMiddleware();
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new UsuarioRolMiddlware());
+    $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new UsuarioRolMiddleware());
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
@@ -53,7 +52,7 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
-  $group->get('/{id}', \PedidoController::class . ':TraerUno');
+  $group->get('/{sector}', \PedidoController::class . ':TraerSector');
   $group->post('[/]', \PedidoController::class . ':CargarUno');
 });
 
@@ -65,12 +64,42 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 
 });
 
+$app->group('/auth', function (RouteCollectorProxy $group) {
+
+  $group->post('/login', \UsuarioController::class . ':Login')->add(new UsuarioLoginMiddleware());
+
+});
+// $app->group('/auth', function (RouteCollectorProxy $group) {
+
+//   $group->post('/login', function (Request $request, Response $response) {    
+//     $parametros = $request->getParsedBody();
+
+//     $usuario = $parametros['usuario'];
+//     $contrasena = $parametros['contrasena'];
+//     $rol = $parametros['rol'];
+
+//     if($usuario == 'gian' && $contrasena == '1234'){ 
+//       $datos = array('usuario' => $usuario, 'rol' => $rol);
+
+//       $token = AutentificadorJWT::CrearToken($datos);
+//       $payload = json_encode(array('jwt' => $token));
+//     } else {
+//       $payload = json_encode(array('error' => 'Usuario o contraseña incorrectos'));
+//     }
+
+//     $response->getBody()->write($payload);
+//     return $response
+//       ->withHeader('Content-Type', 'application/json');
+//   });
+
+// });
+
 
 
 
 
 $app->get('[/]', function (Request $request, Response $response) {    
-    $payload = json_encode(array("mensaje" => "Slim Framework 4 PHP"));
+    $payload = json_encode(array("mensaje" => "Bienvenido!"));
     
     $response->getBody()->write($payload);
     return $response->withHeader('Content-Type', 'application/json');

@@ -14,28 +14,26 @@ class PedidoController extends Pedido implements IApiUsable
         $id_mesa = $parametros['id_mesa'];
         $id_producto = $parametros['id_producto'];
         $cliente = $parametros['cliente'];
-        $tiempo = $parametros['tiempo'];
         // $foto = $parametros['foto'];
         $fecha = date("Y-m-d");
-        $estado = $parametros['estado'];
+        // $estado = $parametros['estado'];
 
         if(isset($parametros['id_pedido'])){
 
           $id_pedido = $parametros['id_pedido'];
-          self::AgregarPedidoProducto($id_pedido, $id_producto, $id_mesa);
+          self::AgregarPedidoProducto($id_pedido, $id_producto);
           $mensaje = "Producto añadido al pedido existente con ID: $id_pedido";
           
         }else{
           $pedido = new Pedido();
           $pedido->id_mesa = $id_mesa;
           $pedido->cliente = $cliente;
-          $pedido->tiempo = $tiempo;
           // $pedido->foto = $foto;
           $pedido->fecha = $fecha;
 
 
           $id_pedido = $pedido->crearPedido();
-          self::AgregarPedidoProducto($id_pedido, $id_producto, $id_mesa);
+          self::AgregarPedidoProducto($id_pedido, $id_producto);
           $mensaje = "Pedido creado con éxito con ID: " . $id_pedido;
           //Modificar estado mesa
 
@@ -46,11 +44,10 @@ class PedidoController extends Pedido implements IApiUsable
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-  private static function AgregarPedidoProducto($id_pedido, $id_producto, $id_mesa)
+  private static function AgregarPedidoProducto($id_pedido, $id_producto)
 	{
       $pedidoProd = new PedidoProductos();
       $pedidoProd->id_producto = $id_producto;
-      $pedidoProd->id_mesa = $id_mesa;
       $pedidoProd->id_pedido = $id_pedido;
 
       $pedidoProd->crearPedidoProducto();
@@ -74,6 +71,16 @@ class PedidoController extends Pedido implements IApiUsable
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TraerSector($request, $response, $args)
+    {
+        $sector = $args['sector'];
+        $listaPedidosSector = PedidoProductos::TraerPorSector($sector);
+        $payload = json_encode(array("listaPedidosSector" => $listaPedidosSector));
+
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
     }
     
     public function ModificarUno($request, $response, $args)

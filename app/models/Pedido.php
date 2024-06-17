@@ -8,6 +8,7 @@ class Pedido
     public $id_mesa;
     public $cliente;
     public $tiempo;
+    public $precio;
     public $foto;
     public $fecha;
     public $estado;
@@ -15,14 +16,12 @@ class Pedido
     public function crearPedido()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id, id_mesa,cliente,tiempo,fecha,estado)
-         VALUES (:id, :id_mesa, :cliente, :tiempo, :fecha, 'pedido')");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id, id_mesa,cliente,fecha,estado)
+         VALUES (:id, :id_mesa, :cliente, :fecha, 'pendiente')");
         $consulta->bindValue(':id', $this->id, PDO::PARAM_STR);
         $consulta->bindValue(':id_mesa', $this->id_mesa, PDO::PARAM_INT);
         $consulta->bindValue(':cliente', $this->cliente, PDO::PARAM_INT);
-        $consulta->bindValue(':tiempo', $this->tiempo, PDO::PARAM_INT);
         $consulta->bindValue(':fecha', $this->fecha, PDO::PARAM_STR);
-        // $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
 
         $consulta->execute();
 
@@ -64,5 +63,7 @@ class Pedido
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
     }
+
+    
 
 }

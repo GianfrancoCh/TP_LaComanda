@@ -16,14 +16,7 @@ class Mesa
 
         return $objAccesoDatos->obtenerUltimoId();
     }
-    public static function TraerTodasLasMesas()
-    {
-        $objetoAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objetoAccesoDato->prepararConsulta("select * from mesas");
-        $consulta->execute();
-        return $consulta->fetchAll(PDO::FETCH_CLASS, "Mesa");
-    }
-
+   
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -32,6 +25,13 @@ class Mesa
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
     }
+    public static function obtenerTodosId()
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$req = $objAccesoDatos->PrepararConsulta("SELECT id FROM mesas");
+		$req->execute();
+		return $req->fetchAll(PDO::FETCH_COLUMN);
+	}
 
     public static function obtenerMesa($id)
     {

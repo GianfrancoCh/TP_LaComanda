@@ -37,6 +37,14 @@ class Producto
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'productos');
     }
 
+    public static function obtenerTodosId()
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$req = $objAccesoDatos->PrepararConsulta("SELECT id FROM productos");
+		$req->execute();
+		return $req->fetchAll(PDO::FETCH_COLUMN);
+	}
+
     public static function obtenerProducto($nombre)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

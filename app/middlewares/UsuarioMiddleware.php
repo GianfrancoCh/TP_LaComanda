@@ -34,6 +34,40 @@ class UsuarioRolMiddleware
     }
 }
 
+class UsuarioMozoMiddleware
+{
+   
+    public function __invoke(Request $request, RequestHandler $handler): Response
+	{
+		$response = new Response();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+
+  
+        try {
+
+            // $payload = json_decode(json_encode(array('datos' => AutentificadorJWT::ObtenerData($token))), true);
+            $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
+            $rol = $datos['datos']->rol;
+                    
+            if (!strcasecmp($rol, "mozo")) {
+                $response = $handler->handle($request);
+            } else {
+                $response->getBody()->write(json_encode(array("msg" => "Solo los mozos pueden realizar esta accion!".$rol)));
+            }
+
+        } catch (Exception $e) {
+
+            $payload = json_encode(array('error' => $e->getMessage()));
+            $response->getBody()->write($payload);
+            
+        }
+	
+        
+        return $response->withHeader('Content-Type', 'application/json');
+	}
+}
+
 class UsuarioLoginMiddleware
 {
     public function __invoke(Request $request, RequestHandler $handler): Response
@@ -84,3 +118,4 @@ class UsuarioLoginMiddleware
         return $response->withHeader('Content-Type', 'application/json');
     }
 }
+

@@ -19,10 +19,13 @@ require_once './db/AccesoDatos.php';
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/PedidoController.php';
+require_once './controllers/MesaController.php';
 require_once './utils/AutentificadorJWT.php';
 
-require_once './middlewares/RolUsuariosMiddleware.php';
+require_once './middlewares/UsuarioMiddleware.php';
 require_once './middlewares/AuthMiddleware.php';
+require_once './middlewares/ProductoMiddleware.php';
+require_once './middlewares/MesaMiddleware.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -53,7 +56,7 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
   $group->get('/{sector}', \PedidoController::class . ':TraerSector');
-  $group->post('[/]', \PedidoController::class . ':CargarUno');
+  $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new ProductoIdMiddleware())->add(new MesaIdMiddleware())->add(new UsuarioMozoMiddleware());
 });
 
 
@@ -69,33 +72,25 @@ $app->group('/auth', function (RouteCollectorProxy $group) {
   $group->post('/login', \UsuarioController::class . ':Login')->add(new UsuarioLoginMiddleware());
 
 });
-// $app->group('/auth', function (RouteCollectorProxy $group) {
 
-//   $group->post('/login', function (Request $request, Response $response) {    
-//     $parametros = $request->getParsedBody();
+$app->group('/jwt', function (RouteCollectorProxy $group) {
+  
+  $group->get('/devolverDatos', function (Request $request, Response $response) {
+    $header = $request->getHeaderLine('Authorization');
+    $token = trim(explode("Bearer", $header)[1]);
 
-//     $usuario = $parametros['usuario'];
-//     $contrasena = $parametros['contrasena'];
-//     $rol = $parametros['rol'];
+    try {
+      $payload = json_encode(array('datos' => AutentificadorJWT::ObtenerData($token)));
+    } catch (Exception $e) {
+      $payload = json_encode(array('error' => $e->getMessage()));
+    }
 
-//     if($usuario == 'gian' && $contrasena == '1234'){ 
-//       $datos = array('usuario' => $usuario, 'rol' => $rol);
+    $response->getBody()->write($payload);
+    return $response->withHeader('Content-Type', 'application/json');
+  });
+    
 
-//       $token = AutentificadorJWT::CrearToken($datos);
-//       $payload = json_encode(array('jwt' => $token));
-//     } else {
-//       $payload = json_encode(array('error' => 'Usuario o contraseña incorrectos'));
-//     }
-
-//     $response->getBody()->write($payload);
-//     return $response
-//       ->withHeader('Content-Type', 'application/json');
-//   });
-
-// });
-
-
-
+});
 
 
 $app->get('[/]', function (Request $request, Response $response) {    

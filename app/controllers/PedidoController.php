@@ -34,6 +34,7 @@ class PedidoController extends Pedido implements IApiUsable
 
           $id_pedido = $pedido->crearPedido();
           self::AgregarPedidoProducto($id_pedido, $id_producto);
+          Mesa::modificarMesa($id_mesa, 'esperando');
           $mensaje = "Pedido creado con éxito con ID: " . $id_pedido;
           //Modificar estado mesa
 
@@ -95,6 +96,22 @@ class PedidoController extends Pedido implements IApiUsable
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TomarProductoPedido($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        $id_pedido = $parametros['id_pedido'];
+        $id_producto = $parametros['id_producto'];
+        $tiempo = $parametros['tiempo'];
+
+        PedidoProducto::PedidoProductoAsignar($idProducto, $idPedido);
+        PedidoProductos::modificarTiempoProducto($id_producto,$id_pedido,$tiempo);
+
+        $payload = json_encode(array("mensaje" => "Pedido modificado con exito"));
+
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
 }

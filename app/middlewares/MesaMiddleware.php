@@ -12,7 +12,15 @@ class MesaIdMiddleware
 		$ids = Mesa::obtenerTodosId();
 		if (isset($params['id_mesa'])) {
 			if (in_array($params['id_mesa'], $ids)) {
-				$response = $handler->handle($request);
+				$mesa = Mesa::obtenerMesa($params['id_mesa']);
+				if($mesa->estado == 'vacia' || $mesa->estado == 'esperando' || $mesa->estado == 'comiendo'){
+					$response = $handler->handle($request);
+
+				}else{
+					$payload = json_encode(array("mensaje" => "La mesa esta cerrada o pagando"));
+                	$response->getBody()->write($payload);
+				}
+				
 			} else {
 				$payload = json_encode(array("mensaje" => "No existe Mesa con es ID"));
                 $response->getBody()->write($payload);

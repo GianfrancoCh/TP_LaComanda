@@ -26,6 +26,7 @@ require_once './middlewares/UsuarioMiddleware.php';
 require_once './middlewares/AuthMiddleware.php';
 require_once './middlewares/ProductoMiddleware.php';
 require_once './middlewares/MesaMiddleware.php';
+require_once './middlewares/PedidoMiddleware.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -44,7 +45,7 @@ $app->addBodyParsingMiddleware();
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new UsuarioRolMiddleware());
+    $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new CrearUsuarioRolMiddleware());
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
@@ -56,6 +57,7 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
   $group->get('/{sector}', \PedidoController::class . ':TraerSector');
+  $group->post('/tomarproductopedido', \PedidoController::class . ':TomarProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
   $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new ProductoIdMiddleware())->add(new MesaIdMiddleware())->add(new UsuarioMozoMiddleware());
 });
 

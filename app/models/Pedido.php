@@ -11,7 +11,7 @@ class Pedido
     public $precio;
     public $foto;
     public $fecha;
-    public $estado;
+    public $estado; /*pendiente-preparacion-listo*/
 
     public function crearPedido()
     {
@@ -44,6 +44,13 @@ class Pedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
     }
 
+    public static function obtenerTodosId()
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$consulta = $objAccesoDatos->PrepararConsulta("SELECT id FROM pedidos");
+		$consulta->execute();
+		return $consulta->fetchAll(PDO::FETCH_COLUMN);
+	}
     public static function obtenerPedido($id)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -63,6 +70,28 @@ class Pedido
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
     }
+
+    public static function ValidarTipoProductoRolEmpleado($tipo, $rol)
+	{
+
+        if($tipo == 'cocina' && !strcasecmp($rol, "cocinero")){
+
+            return true;
+        }else if($tipo == 'candy' && !strcasecmp($rol, "cocinero")){
+
+            return true;
+        }else if($tipo == 'tragos' && !strcasecmp($rol, "bartender")){
+
+            return true;
+
+        }else if($tipo == 'cerveza' && !strcasecmp($rol, "cervecero")){
+
+            return true;
+        }
+
+        return false;
+    		
+	}
 
     
 

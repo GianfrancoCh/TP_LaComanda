@@ -4,7 +4,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response;
 
-class UsuarioRolMiddleware
+class CrearUsuarioRolMiddleware
 {
    
    
@@ -53,7 +53,46 @@ class UsuarioMozoMiddleware
             if (!strcasecmp($rol, "mozo")) {
                 $response = $handler->handle($request);
             } else {
-                $response->getBody()->write(json_encode(array("msg" => "Solo los mozos pueden realizar esta accion!".$rol)));
+                $response->getBody()->write(json_encode(array("msg" => "Solo los mozos pueden realizar esta accion! Tu rol es ".$rol)));
+            }
+
+        } catch (Exception $e) {
+
+            $payload = json_encode(array('error' => $e->getMessage()));
+            $response->getBody()->write($payload);
+            
+        }
+	
+        
+        return $response->withHeader('Content-Type', 'application/json');
+	}
+}
+
+/* verificar rol tarea*/
+class UsuarioRolMiddleware
+{
+   
+    public function __invoke(Request $request, RequestHandler $handler): Response
+	{
+		$response = new Response();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $parametros = $request->getParsedBody();
+
+        try {
+
+            $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
+            $rol = $datos['datos']->rol;
+
+            $producto = Producto::obtenerProductoPorId($parametros['id_producto']);
+            
+            if(Pedido::ValidarTipoProductoRolEmpleado($producto->tipo, $rol)){
+
+                // $response = $handler->handle($request);
+
+                $response->getBody()->write(json_encode(array("msg" => "Rol correcto! Tu rol es ".$rol)));
+            } else {
+                $response->getBody()->write(json_encode(array("msg" => "Rol incorrecto para " . $producto->tipo . "! Tu rol es ".$rol)));
             }
 
         } catch (Exception $e) {

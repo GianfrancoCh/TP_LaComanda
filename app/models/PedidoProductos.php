@@ -45,6 +45,18 @@ class PedidoProductos
         return $consulta->fetchObject('PedidoProductos');
     }
 
+    
+    public static function TraerPorSector($sector)
+	{
+        $objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$consulta = $objAccesoDatos->PrepararConsulta("SELECT * FROM pedidos_productos JOIN productos ON pedidos_productos.id_producto = productos.id WHERE pedidos_productos.estado = 'pendiente' AND productos.tipo = :sector");
+		$consulta->bindValue(':sector', $sector, PDO::PARAM_STR);
+		$consulta->execute();
+        
+		// return $req->fetchAll(PDO::FETCH_CLASS, 'PedidoProductos');
+        return $consulta->fetchAll(PDO::FETCH_OBJ);
+	}
+    
     public static function modificarEstadoProducto($id_pedido, $id_producto, $estado)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
@@ -55,16 +67,28 @@ class PedidoProductos
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'PedidoProductos');
     }
-
-    public static function TraerPorSector($sector)
+    public static function BuscarProductoEnPedido($id_producto, $id_pedido)
 	{
 		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
-		$req = $objAccesoDatos->PrepararConsulta("SELECT * FROM pedidos_productos JOIN productos ON pedidos_productos.id_producto = productos.id WHERE pedidos_productos.estado = 'pendiente' AND productos.tipo = :sector");
-		$req->bindValue(':sector', $sector, PDO::PARAM_STR);
-		$req->execute();
+		$consulta = $objAccesoDatos->PrepararConsulta("SELECT * from pedidos_productos WHERE id_producto=:id_producto AND id_pedido=:id_pedido");
+		$consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
+		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_STR);
+		$consulta->execute();
 
-		// return $req->fetchAll(PDO::FETCH_CLASS, 'PedidoProductos');
-        return $req->fetchAll(PDO::FETCH_OBJ);
+		return $consulta->fetchAll(PDO::FETCH_CLASS, 'PedidoProductos');
+	}
+
+
+    public static function modificarTiempoProducto($id_producto, $id_pedido, $tiempo)
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$consulta = $objAccesoDatos->PrepararConsulta("UPDATE pedidos_productos SET tiempo=:tiempo WHERE id_producto=:id_producto AND id_pedido=:id_pedido");
+		$consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
+		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
+		$consulta->bindValue(':tiempo', $tiempo, PDO::PARAM_INT);
+		$consulta->execute();
+
+		return $objAccesoDatos->obtenerUltimoId();
 	}
     
   

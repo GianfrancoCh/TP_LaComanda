@@ -18,9 +18,15 @@ class PedidoController extends Pedido implements IApiUsable
         $fecha = date("Y-m-d");
         // $estado = $parametros['estado'];
 
+        $producto = Producto::obtenerProductoPorId($id_producto);
+        $precio = $producto->precio;
+
         if(isset($parametros['id_pedido'])){
 
           $id_pedido = $parametros['id_pedido'];
+          $pedido = Pedido::obtenerPedido($id_pedido);
+          $nuevoPrecio = $pedido->precio + $producto->precio;
+          Pedido::modificarPrecioPedido($id_pedido,$nuevoPrecio);
           self::AgregarPedidoProducto($id_pedido, $id_producto);
           $mensaje = "Producto añadido al pedido existente con ID: $id_pedido";
           
@@ -30,13 +36,12 @@ class PedidoController extends Pedido implements IApiUsable
           $pedido->cliente = $cliente;
           // $pedido->foto = $foto;
           $pedido->fecha = $fecha;
-
+          $pedido->precio = $precio;
 
           $id_pedido = $pedido->crearPedido();
           self::AgregarPedidoProducto($id_pedido, $id_producto);
           Mesa::modificarMesa($id_mesa, 'esperando');
           $mensaje = "Pedido creado con éxito con ID: " . $id_pedido;
-          //Modificar estado mesa
 
         }   
 

@@ -76,25 +76,6 @@ $app->group('/auth', function (RouteCollectorProxy $group) {
 
 });
 
-$app->group('/jwt', function (RouteCollectorProxy $group) {
-  
-  $group->get('/devolverDatos', function (Request $request, Response $response) {
-    $header = $request->getHeaderLine('Authorization');
-    $token = trim(explode("Bearer", $header)[1]);
-
-    try {
-      $payload = json_encode(array('datos' => AutentificadorJWT::ObtenerData($token)));
-    } catch (Exception $e) {
-      $payload = json_encode(array('error' => $e->getMessage()));
-    }
-
-    $response->getBody()->write($payload);
-    return $response->withHeader('Content-Type', 'application/json');
-  });
-    
-
-});
-
 
 $app->get('[/]', function (Request $request, Response $response) {    
     $payload = json_encode(array("mensaje" => "Bienvenido!"));

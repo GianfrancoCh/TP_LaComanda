@@ -16,11 +16,12 @@ class Pedido
     public function crearPedido()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id, id_mesa,cliente,fecha,estado)
-         VALUES (:id, :id_mesa, :cliente, :fecha, 'pendiente')");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id, id_mesa,cliente,precio,fecha,estado)
+         VALUES (:id, :id_mesa, :cliente,:precio, :fecha, 'pendiente')");
         $consulta->bindValue(':id', $this->id, PDO::PARAM_STR);
         $consulta->bindValue(':id_mesa', $this->id_mesa, PDO::PARAM_INT);
-        $consulta->bindValue(':cliente', $this->cliente, PDO::PARAM_INT);
+        $consulta->bindValue(':cliente', $this->cliente, PDO::PARAM_STR);
+        $consulta->bindValue(':precio', $this->precio, PDO::PARAM_INT);
         $consulta->bindValue(':fecha', $this->fecha, PDO::PARAM_STR);
 
         $consulta->execute();
@@ -67,6 +68,16 @@ class Pedido
         $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos SET estado = :estado WHERE id = :id");
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
+        $consulta->execute();
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
+    }
+
+    public static function modificarPrecioPedido($id, $precio)
+    {
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos SET precio = :precio WHERE id = :id");
+        $consulta->bindValue(':id', $id, PDO::PARAM_INT);
+        $consulta->bindValue(':precio', $precio, PDO::PARAM_STR);
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
     }

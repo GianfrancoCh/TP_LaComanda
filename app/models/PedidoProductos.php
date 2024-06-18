@@ -103,5 +103,15 @@ class PedidoProductos
 		return $objAccesoDatos->obtenerUltimoId();
 	}
     
+    public static function obtenerCantidadProductosPendientes($id_pedido)
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+
+		$consulta = $objAccesoDatos->PrepararConsulta("SELECT COUNT(*) FROM pedidos_productos WHERE id_pedido=:id_pedido AND estado IN ('pendiente', 'preparacion')");
+		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
+		$consulta->execute();
+
+		return $consulta->fetchColumn();
+	}
   
 }

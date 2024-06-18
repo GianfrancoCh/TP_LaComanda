@@ -145,9 +145,17 @@ class PedidoController extends Pedido implements IApiUsable
 
         PedidoProductos::modificarEstadoProducto($id_producto,$id_pedido,$estado);
 
+        if (PedidoProductos::obtenerCantidadProductosPendientes($id_pedido) == 0) {
+					Pedido::modificarPedido($id_pedido, 'listo');
+					$payload = json_encode(array("msg" => "Pedido" . $id_pedido."listo!"));
 
-        $payload = json_encode(array("mensaje" => "Producto marcado como listo por " . $empleado));
+					$pedido = Pedido::obtenerPedido($id_pedido);
+					Mesa::modificarMesa($pedido->id_mesa, 'comiendo');
+				}else{
 
+          $payload = json_encode(array("mensaje" => "Producto marcado como listo por " . $empleado));
+        }
+        
         $response->getBody()->write($payload);
         return $response->withHeader('Content-Type', 'application/json');
     }

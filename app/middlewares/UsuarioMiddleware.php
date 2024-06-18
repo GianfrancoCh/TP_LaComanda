@@ -88,9 +88,9 @@ class UsuarioRolMiddleware
             
             if(Pedido::ValidarTipoProductoRolEmpleado($producto->tipo, $rol)){
 
-                // $response = $handler->handle($request);
+                $response = $handler->handle($request);
 
-                $response->getBody()->write(json_encode(array("msg" => "Rol correcto! Tu rol es ".$rol)));
+                // $response->getBody()->write(json_encode(array("msg" => "Rol correcto! Tu rol es ".$rol)));
             } else {
                 $response->getBody()->write(json_encode(array("msg" => "Rol incorrecto para " . $producto->tipo . "! Tu rol es ".$rol)));
             }

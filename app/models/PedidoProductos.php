@@ -57,26 +57,26 @@ class PedidoProductos
         return $consulta->fetchAll(PDO::FETCH_OBJ);
 	}
     
-    public static function modificarEstadoProducto($id_pedido, $id_producto, $estado)
-    {
-        $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos_productos SET estado = :estado WHERE id_pedido = :id_pedido AND id_producto = :id_producto");
-        $consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
-        $consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
-        $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
-        $consulta->execute();
-        return $consulta->fetchAll(PDO::FETCH_CLASS, 'PedidoProductos');
-    }
     public static function BuscarProductoEnPedido($id_producto, $id_pedido)
 	{
-		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+        $objAccesoDatos = AccesoDatos::ObtenerInstancia();
 		$consulta = $objAccesoDatos->PrepararConsulta("SELECT * from pedidos_productos WHERE id_producto=:id_producto AND id_pedido=:id_pedido");
 		$consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
 		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_STR);
 		$consulta->execute();
-
+        
 		return $consulta->fetchAll(PDO::FETCH_CLASS, 'PedidoProductos');
 	}
+    public static function modificarEstadoProducto($id_producto,$id_pedido, $estado)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE pedidos_productos SET estado = :estado WHERE id_pedido = :id_pedido AND id_producto = :id_producto");
+        $consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
+        $consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
+        $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
+        $consulta->execute();
+        return $objAccesoDatos->obtenerUltimoId();
+    }
 
 
     public static function modificarTiempoProducto($id_producto, $id_pedido, $tiempo)
@@ -86,6 +86,18 @@ class PedidoProductos
 		$consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
 		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
 		$consulta->bindValue(':tiempo', $tiempo, PDO::PARAM_INT);
+		$consulta->execute();
+
+		return $objAccesoDatos->obtenerUltimoId();
+	}
+
+    public static function asignarProductoEmpleado($id_producto, $id_pedido, $empleado)
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$consulta = $objAccesoDatos->PrepararConsulta("UPDATE pedidos_productos SET responsable=:empleado WHERE id_producto=:id_producto AND id_pedido=:id_pedido");
+		$consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
+		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
+		$consulta->bindValue(':empleado', $empleado, PDO::PARAM_STR);
 		$consulta->execute();
 
 		return $objAccesoDatos->obtenerUltimoId();

@@ -58,6 +58,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
   $group->get('/{sector}', \PedidoController::class . ':TraerSector');
   $group->post('/tomarproductopedido', \PedidoController::class . ':TomarProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
+  $group->post('/listoproductopedido', \PedidoController::class . ':ListoProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
   $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new ProductoIdMiddleware())->add(new MesaIdMiddleware())->add(new UsuarioMozoMiddleware());
 });
 

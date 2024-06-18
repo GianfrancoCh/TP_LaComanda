@@ -100,15 +100,48 @@ class PedidoController extends Pedido implements IApiUsable
 
     public function TomarProductoPedido($request, $response, $args)
     {
+
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+
         $parametros = $request->getParsedBody();
         $id_pedido = $parametros['id_pedido'];
         $id_producto = $parametros['id_producto'];
         $tiempo = $parametros['tiempo'];
 
-        PedidoProducto::PedidoProductoAsignar($idProducto, $idPedido);
-        PedidoProductos::modificarTiempoProducto($id_producto,$id_pedido,$tiempo);
+        $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
+        $empleado = $datos['datos']->usuario;
+        $estado = "preparacion";
 
-        $payload = json_encode(array("mensaje" => "Pedido modificado con exito"));
+        PedidoProductos::asignarProductoEmpleado($id_producto,$id_pedido,$empleado);
+        PedidoProductos::modificarTiempoProducto($id_producto,$id_pedido,$tiempo);
+        PedidoProductos::modificarEstadoProducto($id_producto,$id_pedido,$estado);
+
+
+        $payload = json_encode(array("mensaje" => "Producto tomado por " . $empleado . ". Tiempo estimado ".$tiempo));
+
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function ListoProductoPedido($request, $response, $args)
+    {
+
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+
+        $parametros = $request->getParsedBody();
+        $id_pedido = $parametros['id_pedido'];
+        $id_producto = $parametros['id_producto'];
+
+        $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
+        $empleado = $datos['datos']->usuario;
+        $estado = "listo";
+
+        PedidoProductos::modificarEstadoProducto($id_producto,$id_pedido,$estado);
+
+
+        $payload = json_encode(array("mensaje" => "Producto marcado como listo por " . $empleado));
 
         $response->getBody()->write($payload);
         return $response->withHeader('Content-Type', 'application/json');

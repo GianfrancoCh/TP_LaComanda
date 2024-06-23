@@ -112,18 +112,18 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
         $id_pedido = $parametros['id_pedido'];
         $id_producto = $parametros['id_producto'];
-        $tiempo = $parametros['tiempo'];
+        $tiempoEstimado = $parametros['tiempo'];
 
         $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
         $empleado = $datos['datos']->usuario;
         $estado = "preparacion";
 
         PedidoProductos::asignarProductoEmpleado($id_producto,$id_pedido,$empleado);
-        PedidoProductos::modificarTiempoProducto($id_producto,$id_pedido,$tiempo);
+        PedidoProductos::modificarTiempoEstimadoProducto($id_producto,$id_pedido,$tiempoEstimado);
         PedidoProductos::modificarEstadoProducto($id_producto,$id_pedido,$estado);
 
 
-        $payload = json_encode(array("mensaje" => "Producto tomado por " . $empleado . ". Tiempo estimado ".$tiempo));
+        $payload = json_encode(array("mensaje" => "Producto tomado por " . $empleado . ". Tiempo estimado ".$tiempoEstimado));
 
         $response->getBody()->write($payload);
         return $response->withHeader('Content-Type', 'application/json');
@@ -138,12 +138,15 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
         $id_pedido = $parametros['id_pedido'];
         $id_producto = $parametros['id_producto'];
+        $tiempoFinal = $parametros['$tiempoFinal'];
 
         $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
         $empleado = $datos['datos']->usuario;
         $estado = "listo";
 
         PedidoProductos::modificarEstadoProducto($id_producto,$id_pedido,$estado);
+        PedidoProductos::modificarTiempoFinalProducto($id_producto,$id_pedido,$tiempoFinal);
+        
 
         if (PedidoProductos::obtenerCantidadProductosPendientes($id_pedido) == 0) {
 					Pedido::modificarPedido($id_pedido, 'listo');
@@ -155,6 +158,15 @@ class PedidoController extends Pedido implements IApiUsable
 
           $payload = json_encode(array("mensaje" => "Producto marcado como listo por " . $empleado));
         }
+        
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function CobrarPedido($request, $response, $args)
+    {
+
+        $payload = json_encode(array("mensaje" => "Cobrar pedido"));
         
         $response->getBody()->write($payload);
         return $response->withHeader('Content-Type', 'application/json');

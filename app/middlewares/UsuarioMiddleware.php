@@ -90,9 +90,41 @@ class UsuarioRolMiddleware
 
                 $response = $handler->handle($request);
 
-                // $response->getBody()->write(json_encode(array("msg" => "Rol correcto! Tu rol es ".$rol)));
+
             } else {
                 $response->getBody()->write(json_encode(array("msg" => "Rol incorrecto para " . $producto->tipo . "! Tu rol es ".$rol)));
+            }
+
+        } catch (Exception $e) {
+
+            $payload = json_encode(array('error' => $e->getMessage()));
+            $response->getBody()->write($payload);
+            
+        }
+	
+        
+        return $response->withHeader('Content-Type', 'application/json');
+	}
+}
+
+class UsuarioSocioMiddleware
+{
+   
+    public function __invoke(Request $request, RequestHandler $handler): Response
+	{
+		$response = new Response();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+
+        try {
+
+            $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
+            $rol = $datos['datos']->rol;
+                    
+            if (!strcasecmp($rol, "socio")) {
+                $response = $handler->handle($request);
+            } else {
+                $response->getBody()->write(json_encode(array("msg" => "Solo los socios pueden realizar esta accion! Tu rol es ".$rol)));
             }
 
         } catch (Exception $e) {

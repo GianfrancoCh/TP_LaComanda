@@ -31,5 +31,27 @@ class MesaIdMiddleware
 		}
 		return $response->withHeader('Content-Type', 'application/json');
 	}
+}
+
+class MesaParametrosMiddleware
+{	public function __invoke(Request $request, RequestHandler $handler): Response
+	{
+		$response = new Response();
+		$params = $request->getParsedBody();
+		if (isset($params['estado'])) {
+
+			$estado = $params['estado'];
+			if ($estado === 'vacio' || $estado === 'esperando' || $estado === 'estado' || $estado === 'pagando' || $estado === 'cerrada') {
+				$response = $handler->handle($request);
+			} else {
+				$payload = json_encode(array("mensaje" => "Estado incorrecto"));
+                $response->getBody()->write($payload);
+			}
+		} else {
+			$payload = json_encode(array("mensaje" => "Falta el estado de la mesa"));
+            $response->getBody()->write($payload);
+		}
+		return $response->withHeader('Content-Type', 'application/json');
+	}
 
 }

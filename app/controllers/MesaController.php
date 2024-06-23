@@ -7,13 +7,9 @@ class MesaController extends Mesa implements IApiUsable
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-
-        $mesaNumero = $parametros['mesaNumero'];
         $estado = $parametros['estado'];
   
-
         $mesa = new Mesa();
-        $mesa->mesaNumero = $mesaNumero;
         $mesa->estado = $estado;
         $mesa->crearMesa();
 
@@ -49,9 +45,8 @@ class MesaController extends Mesa implements IApiUsable
     {
         $parametros = $request->getParsedBody();
         $id = $parametros['id'];
-        $mesaNumero = $parametros['mesaNumero'];
         $estado = $parametros['estado'];
-        Mesa::modificarMesa($id,$mesaNumero,$estado);
+        Mesa::modificarMesa($id,$estado);
 
         $payload = json_encode(array("mensaje" => "Mesa modificada con exito"));
 

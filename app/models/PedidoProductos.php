@@ -7,14 +7,10 @@ class PedidoProductos
     public $id_pedido;
 	public $id_producto;
     public $responsable;
-    public $tiempo;
+    public $tiempoFinal;
+
+    public $tiempoEstimado;
     public $estado;
-
-    // public $id;
-    // public $nombre;
-
-    // public $tipo;
-    // public $precio;
 
     public function crearPedidoProducto()
     {
@@ -79,13 +75,25 @@ class PedidoProductos
     }
 
 
-    public static function modificarTiempoProducto($id_producto, $id_pedido, $tiempo)
+    public static function modificarTiempoEstimadoProducto($id_producto, $id_pedido, $tiempoEstimado)
 	{
 		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
-		$consulta = $objAccesoDatos->PrepararConsulta("UPDATE pedidos_productos SET tiempo=:tiempo WHERE id_producto=:id_producto AND id_pedido=:id_pedido");
+		$consulta = $objAccesoDatos->PrepararConsulta("UPDATE pedidos_productos SET tiempoEstimado=:tiempoEstimado WHERE id_producto=:id_producto AND id_pedido=:id_pedido");
 		$consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
 		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
-		$consulta->bindValue(':tiempo', $tiempo, PDO::PARAM_INT);
+		$consulta->bindValue(':tiempoEstimado', $tiempoEstimado, PDO::PARAM_INT);
+		$consulta->execute();
+
+		return $objAccesoDatos->obtenerUltimoId();
+	}
+
+    public static function modificarTiempoFinalProducto($id_producto, $id_pedido, $tiempoFinal)
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$consulta = $objAccesoDatos->PrepararConsulta("UPDATE pedidos_productos SET tiempoFinal=:tiempoFinal WHERE id_producto=:id_producto AND id_pedido=:id_pedido");
+		$consulta->bindValue(':id_producto', $id_producto, PDO::PARAM_INT);
+		$consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
+		$consulta->bindValue(':tiempoFinal', $tiempoFinal, PDO::PARAM_INT);
 		$consulta->execute();
 
 		return $objAccesoDatos->obtenerUltimoId();

@@ -2,7 +2,7 @@
 
 class Archivo
 {
-	public static function GuardarArchivoPeticion($directorio, $nuevoNombre, $key, $extension)
+	public static function GuardarArchivo($directorio, $nuevoNombre, $key, $extension)
 	{
 		if (!is_dir($directorio)){
 
@@ -27,7 +27,7 @@ class Archivo
         
 	}
 
-	public static function MoverImagen($origen, $destino, $archivo)
+	public static function subirImagen($origen, $destino, $archivo)
 	{
 		if (!is_dir($destino))
 			mkdir($destino, 0777, true);

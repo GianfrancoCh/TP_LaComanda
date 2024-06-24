@@ -188,4 +188,16 @@ class PedidoController extends Pedido implements IApiUsable
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public static function TomarFoto($request,  $response)
+    {
+      $parametros = $request->getParsedBody();
+      $pedido = Pedido::obtenerPedido($parametros['id_pedido']);
+      $uriFoto = Archivo::GuardarArchivo("db/fotos/", "{$parametros['id_pedido']}", 'foto', '.jpg');
+
+      $payload = json_encode(array("msg" => "Foto agregada con exito"));
+      $response->getBody()->write($payload);
+
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
 }

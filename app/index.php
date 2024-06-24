@@ -48,6 +48,8 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
     $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new CrearUsuarioRolMiddleware())->add(new UsuarioSocioMiddleware());
+    $group->put('/modificarestado', \UsuarioController::class . ':ModificarUno')->add(new UsuarioSocioMiddleware());
+
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
@@ -61,9 +63,10 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('/{sector}', \PedidoController::class . ':TraerSector');
   $group->put('/tomarproductopedido', \PedidoController::class . ':TomarProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
   $group->put('/listoproductopedido', \PedidoController::class . ':ListoProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
+  $group->post('/tomarfoto', \PedidoController::class . ':TomarFoto')->add(new PedidoIdMiddleware())->add(new UsuarioMozoMiddleware());
   $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new ProductoIdMiddleware())->add(new MesaIdMiddleware())->add(new UsuarioMozoMiddleware());
   $group->post('/pedircuenta', \FacturaController::class . ':CargarUna')->add(new PedidoIdMiddleware())->add(new UsuarioMozoMiddleware());
-  $group->get('/verfactura/{id}', \FacturaController::class . ':verFacturaId');
+  $group->get('/verfactura/{id}', \FacturaController::class . ':verFacturaId')->add(new UsuarioMozoMiddleware());
   $group->post('/pagarcuenta', \FacturaController::class . ':PagarFactura')->add(new FacturaIdMiddleware())->add(new UsuarioMozoMiddleware());
 
 });

@@ -76,7 +76,7 @@ class Mesa
 
     public static function subirMesaCsv()
 	{
-		$archivo = Archivo::GuardarArchivoPeticion("db/", "mesas", 'csv', '.csv');
+		$archivo = Archivo::GuardarArchivo("db/", "mesas", 'csv', '.csv');
 		if ($archivo != "N/A") {
 			$arrayMesas = self::CsvAMesa($archivo);
 			foreach ($arrayMesas as $mesa) {

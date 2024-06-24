@@ -46,8 +46,8 @@ class EncuestaController extends Encuesta implements IApiUsable
 
     public function TraerTodos($request, $response, $args)
     {
-        $lista = Producto::obtenerTodos();
-        $payload = json_encode(array("listaProductos" => $lista));
+        $lista = Encuesta::TraerTodasLasEncuestas();
+        $payload = json_encode(array("encuestas" => $lista));
 
         $response->getBody()->write($payload);
         return $response

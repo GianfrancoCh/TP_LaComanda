@@ -159,9 +159,9 @@ class UsuarioLoginMiddleware
                         $nombre = $usuario->usuario;
                         $rol = $usuario->rol;    
                         $token = AutentificadorJWT::CrearToken(array('usuario' => $nombre, 'rol' => $rol));
-                        $payload = json_encode(array("mensaje" => "Logueado con exito como " . $usuario->usuario, "token"=> $token));
-                        
-    
+                        $payload = json_encode(array("mensaje" => "Logueado con exito como " . $usuario->usuario, "token"=> $token));    
+                        $response = $handler->handle($request);                
+
                     }else{
     
                         $payload = json_encode(array("mensaje" => "Usuario inactivo"));
@@ -170,9 +170,7 @@ class UsuarioLoginMiddleware
 
                     $payload = json_encode(array("mensaje" => "Usuario o clave incorrecta"));
 
-
-                }
-                
+                }            
                 
             }else{
                 $payload = json_encode(array("mensaje" => "Usuario con ID no existente"));

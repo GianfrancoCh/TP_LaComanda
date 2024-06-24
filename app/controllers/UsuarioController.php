@@ -52,10 +52,8 @@ class UsuarioController extends Usuario implements IApiUsable
     {
         $parametros = $request->getParsedBody();
         $id = $parametros['id'];
-        $usuario = $parametros['usuario'];
-        $clave = $parametros['clave'];
-        $rol = $parametros['rol'];
-        Usuario::modificarUsuario($id,$usuario,$clave,$rol);
+        $estado = $parametros['estado'];
+        Usuario::modificarUsuario($id,$estado);
 
         $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
@@ -64,30 +62,22 @@ class UsuarioController extends Usuario implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public static function Login($request, $response, $args)
+    public static function Login($request, $response)
     {
-      // $parametros = $request->getParsedBody();
-      $payload = "adentro login";
-  
-      $response->getBody()->write($payload);
+      $parametros = $request->getParsedBody();
+      $id_usuario = $parametros['id'];
+      $timestamp = date('Y-m-d H:i:s');
+
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+      $consulta = $objAccesoDatos->PrepararConsulta("INSERT INTO usuarios_logs (id_usuario, timestamp) VALUES (:id_usuario, :timestamp)");
+      $consulta->bindValue(':id_usuario', $id_usuario, PDO::PARAM_INT);
+      $consulta->bindValue(':timestamp', $timestamp, PDO::PARAM_STR);
+      $consulta->execute();
+
+
       return $response->withHeader('Content-Type', 'application/json');
+
     }
 
-
-    private static function AlmacenarLog($jwt)
-    {
-      try {
-        AutentificadorJWT::VerificarToken($jwt);
-        $data = AutentificadorJWT::ObtenerData($jwt);
-        $objAccesoDatos = AccesoDatos::ObtenerInstancia();
-        $req = $objAccesoDatos->PrepararConsulta("INSERT INTO logs (idUser, fecha, hora) VALUES (:idUser, :fecha, :hora)");
-        $req->bindValue(':idUser', $data->id, PDO::PARAM_INT);
-        $req->bindValue(':fecha', $data->fecha, PDO::PARAM_STR);
-        $req->bindValue(':hora', $data->hora, PDO::PARAM_STR);
-        $req->execute();
-      } catch (Exception $ex) {
-        throw new Exception("Error al almacenar el log.");
-      }
-    }
 
 }

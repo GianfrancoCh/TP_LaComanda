@@ -7,11 +7,12 @@ class Pedido
 	public $id;
     public $id_mesa;
     public $cliente;
-    public $tiempo;
+    public $tiempoEstimado;
+    public $tiempoFinal;
     public $precio;
     public $foto;
     public $fecha;
-    public $estado; /*pendiente-preparacion-listo*/
+    public $estado; 
 
     public function crearPedido()
     {
@@ -78,6 +79,26 @@ class Pedido
         $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos SET precio = :precio WHERE id = :id");
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->bindValue(':precio', $precio, PDO::PARAM_STR);
+        $consulta->execute();
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
+    }
+
+    public static function modificarTiempoEstimadoPedido($id, $tiempo)
+    {
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos SET tiempoEstimado = :tiempo WHERE id = :id");
+        $consulta->bindValue(':id', $id, PDO::PARAM_INT);
+        $consulta->bindValue(':tiempo', $tiempo, PDO::PARAM_STR);
+        $consulta->execute();
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
+    }
+
+    public static function modificarTiempoFinalPedido($id, $tiempo)
+    {
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos SET tiempoFinal = :tiempo WHERE id = :id");
+        $consulta->bindValue(':id', $id, PDO::PARAM_INT);
+        $consulta->bindValue(':tiempo', $tiempo, PDO::PARAM_STR);
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'pedido');
     }

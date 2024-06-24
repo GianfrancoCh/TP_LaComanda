@@ -50,10 +50,10 @@ class UsuarioMozoMiddleware
             $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
             $rol = $datos['datos']->rol;
                     
-            if (!strcasecmp($rol, "mozo")) {
+            if ($rol == 'mozo' || $rol == 'socio') {
                 $response = $handler->handle($request);
             } else {
-                $response->getBody()->write(json_encode(array("msg" => "Solo los mozos pueden realizar esta accion! Tu rol es ".$rol)));
+                $response->getBody()->write(json_encode(array("msg" => "Solo los mozos o socios pueden realizar esta accion! Tu rol es ".$rol)));
             }
 
         } catch (Exception $e) {

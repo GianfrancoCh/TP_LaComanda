@@ -19,7 +19,9 @@ require_once './db/AccesoDatos.php';
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/PedidoController.php';
+require_once './controllers/EncuestaController.php';
 require_once './controllers/MesaController.php';
+require_once './controllers/FacturaController.php';
 require_once './utils/AutentificadorJWT.php';
 
 require_once './middlewares/UsuarioMiddleware.php';
@@ -45,7 +47,7 @@ $app->addBodyParsingMiddleware();
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new CrearUsuarioRolMiddleware());
+    $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new CrearUsuarioRolMiddleware())->add(new UsuarioSocioMiddleware());
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
@@ -57,17 +59,26 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
   $group->get('/{sector}', \PedidoController::class . ':TraerSector');
-  $group->post('/tomarproductopedido', \PedidoController::class . ':TomarProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
-  $group->post('/listoproductopedido', \PedidoController::class . ':ListoProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
+  $group->put('/tomarproductopedido', \PedidoController::class . ':TomarProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
+  $group->put('/listoproductopedido', \PedidoController::class . ':ListoProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
   $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new ProductoIdMiddleware())->add(new MesaIdMiddleware())->add(new UsuarioMozoMiddleware());
+  $group->post('/pedircuenta', \FacturaController::class . ':CargarUna')->add(new PedidoIdMiddleware())->add(new UsuarioMozoMiddleware());
+  $group->post('/pagarcuenta', \FacturaController::class . ':PagarFactura')->add(new FacturaIdMiddleware())->add(new UsuarioMozoMiddleware());
+
 });
 
-
 $app->group('/mesas', function (RouteCollectorProxy $group) {
+  $group->post('/csv', \MesaController::class . ':SubirCsv')->add(new UsuarioSocioMiddleware());
+  $group->get('/csv', \MesaController::class . ':DescargarCsv')->add(new UsuarioSocioMiddleware());
   $group->get('[/]', \MesaController::class . ':TraerTodos');
   $group->get('/{mesas}', \MesaController::class . ':TraerUno');
   $group->post('[/]', \MesaController::class . ':CargarUno')->add(new UsuarioSocioMiddleware());
+  
+});
 
+$app->group('/encuesta', function (RouteCollectorProxy $group) {
+	$group->post('[/]', \EncuestaController::class . ':CargarUno')->add(new EncuestaMiddleware())->add(new PedidoIdMiddleware());;
+	$group->get('[/]', \EncuestaController::class . ':TraerTodos');
 });
 
 $app->group('/auth', function (RouteCollectorProxy $group) {

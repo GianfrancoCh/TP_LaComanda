@@ -121,5 +121,17 @@ class PedidoProductos
 
 		return $consulta->fetchColumn();
 	}
+
+    public static function obtenerTiempoFinalMayorPedidoProductos($id_pedido)
+	{
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT MAX(tiempoFinal) AS maxTiempoFinal FROM pedidos_productos WHERE id_pedido = :id_pedido");
+        $consulta->bindValue(':id_pedido', $id_pedido, PDO::PARAM_INT);
+        $consulta->execute();
+
+        $resultado = $consulta->fetch(PDO::FETCH_OBJ);
+
+        return $resultado->maxTiempoFinal;
+	}
   
 }

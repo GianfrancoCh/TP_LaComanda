@@ -1,6 +1,8 @@
 <?php
 
 include_once(__DIR__ . '/../db/AccesoDatos.php');
+include_once(__DIR__ . '/../utils/Archivos.php');
+
 class Mesa
 {
 	public $id;
@@ -50,5 +52,66 @@ class Mesa
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
     }
+
+    public static function CsvAMesa($rutaArchivo)
+	{
+		$archivo = fopen($rutaArchivo, "r");
+		$arrayArchivo = array();
+		$datos = array();
+
+		if ($archivo) {
+			while (!feof($archivo)) {
+				$arrayArchivo = fgetcsv($archivo);
+				if (!empty($arrayArchivo)) {
+					$mesa = new Mesa();
+					$mesa->estado = $arrayArchivo[0];
+					array_push($datos, $mesa);
+				}
+			}
+			fclose($archivo);
+		}
+
+		return $datos;
+	}
+
+    public static function subirMesaCsv()
+	{
+		$archivo = Archivo::GuardarArchivoPeticion("db/", "mesas", 'csv', '.csv');
+		if ($archivo != "N/A") {
+			$arrayMesas = self::CsvAMesa($archivo);
+			foreach ($arrayMesas as $mesa) {
+				$mesa->crearMesa();
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+
+    public static function descargaDbCsv($rutaArchivo)
+	{
+		$mesas = self::obtenerTodos();
+        $arrayCsv = [];
+
+        if (empty($mesas)) {
+            return false;  
+
+        }
+
+        $archivo = fopen($rutaArchivo, 'w');
+
+        fputcsv($archivo, ['id', 'estado']);
+
+        foreach ($mesas as $mesa) {
+
+            fputcsv($archivo, [(int)$mesa->id, $mesa->estado]);
+        }
+
+        fclose($archivo);
+		
+		return true;
+	}
+
 
 }

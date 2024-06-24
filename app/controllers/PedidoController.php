@@ -118,10 +118,17 @@ class PedidoController extends Pedido implements IApiUsable
         $empleado = $datos['datos']->usuario;
         $estado = "preparacion";
 
+        $pedido = Pedido::obtenerPedido($id_pedido);
+
+        if($pedido->tiempoEstimado == null || $pedido->tiempoEstimado < $tiempoEstimado){
+          Pedido::modificarTiempoEstimadoPedido($id_pedido, $tiempoEstimado);
+        }
+
         PedidoProductos::asignarProductoEmpleado($id_producto,$id_pedido,$empleado);
         PedidoProductos::modificarTiempoEstimadoProducto($id_producto,$id_pedido,$tiempoEstimado);
         PedidoProductos::modificarEstadoProducto($id_producto,$id_pedido,$estado);
 
+        
 
         $payload = json_encode(array("mensaje" => "Producto tomado por " . $empleado . ". Tiempo estimado ".$tiempoEstimado));
 
@@ -138,22 +145,31 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
         $id_pedido = $parametros['id_pedido'];
         $id_producto = $parametros['id_producto'];
-        $tiempoFinal = $parametros['$tiempoFinal'];
+        $tiempoFinal = $parametros['tiempo'];
 
         $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
         $empleado = $datos['datos']->usuario;
         $estado = "listo";
+
+        
 
         PedidoProductos::modificarEstadoProducto($id_producto,$id_pedido,$estado);
         PedidoProductos::modificarTiempoFinalProducto($id_producto,$id_pedido,$tiempoFinal);
         
 
         if (PedidoProductos::obtenerCantidadProductosPendientes($id_pedido) == 0) {
-					Pedido::modificarPedido($id_pedido, 'listo');
-					$payload = json_encode(array("msg" => "Pedido" . $id_pedido."listo!"));
 
+          $pedido = Pedido::obtenerPedido($id_pedido);
+          $tiempoFinalMayorProductos = PedidoProductos::obtenerTiempoFinalMayorPedidoProductos($id_pedido);
+          if($pedido->tiempoFinal == null || $pedido->tiempoFinal < $tiempoFinalMayorProductos){
+            Pedido::modificarTiempoFinalPedido($id_pedido, $tiempoFinalMayorProductos);
+          }
+
+					Pedido::modificarPedido($id_pedido, 'listo');
+					$payload = json_encode(array("msg" => "Pedido " . $id_pedido." listo!"));
+          
 					$pedido = Pedido::obtenerPedido($id_pedido);
-					Mesa::modificarMesa($pedido->id_mesa, 'comiendo');
+					// Mesa::modificarMesa($pedido->id_mesa, 'comiendo');
 				}else{
 
           $payload = json_encode(array("mensaje" => "Producto marcado como listo por " . $empleado));

@@ -71,5 +71,7 @@ class Usuario
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
     }
 
+    
+
    
 }

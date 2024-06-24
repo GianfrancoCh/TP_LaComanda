@@ -73,4 +73,21 @@ class UsuarioController extends Usuario implements IApiUsable
       return $response->withHeader('Content-Type', 'application/json');
     }
 
+
+    private static function AlmacenarLog($jwt)
+    {
+      try {
+        AutentificadorJWT::VerificarToken($jwt);
+        $data = AutentificadorJWT::ObtenerData($jwt);
+        $objAccesoDatos = AccesoDatos::ObtenerInstancia();
+        $req = $objAccesoDatos->PrepararConsulta("INSERT INTO logs (idUser, fecha, hora) VALUES (:idUser, :fecha, :hora)");
+        $req->bindValue(':idUser', $data->id, PDO::PARAM_INT);
+        $req->bindValue(':fecha', $data->fecha, PDO::PARAM_STR);
+        $req->bindValue(':hora', $data->hora, PDO::PARAM_STR);
+        $req->execute();
+      } catch (Exception $ex) {
+        throw new Exception("Error al almacenar el log.");
+      }
+    }
+
 }

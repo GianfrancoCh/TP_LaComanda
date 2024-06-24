@@ -16,18 +16,23 @@ class FacturaController extends Factura
 		$factura = new Factura();
 		$factura->fecha = $pedido->fecha;
 		$factura->id_pedido = $parametros['id_pedido'];
-		$factura->cliente = $parametros['cliente'];
+		$factura->cliente = $pedido->cliente;
 		$factura->forma_pago = $parametros['forma_pago'];
 		$factura->importe = $pedido->precio;
 		$id = $factura->crearFactura();
 
         Pedido::modificarPedido($pedido->id, 'pagando');
 		Mesa::modificarMesa($pedido->id_mesa, 'pagando');
-		
 
-        $payload = json_encode(array("mensaje" => "Se creo factura con ID: " . $id));
-        $response->getBody()->write($payload);
-        return $response->withHeader('Content-Type', 'application/json');
+		if ($id) {
+			return $this->verFacturaId($response, ['id' => $id]);
+		} else {
+			return $response->withStatus(500)->write('No se pudo crear la factura.');
+		}
+		
+		// $payload = json_encode(array("mensaje" => "Se creo factura con ID: " . $id));
+        // $response->getBody()->write($payload);
+        // return $response->withHeader('Content-Type', 'application/json');
 	}
 
 	public static function PagarFactura($request, $response)
@@ -44,18 +49,16 @@ class FacturaController extends Factura
 		return $response->withHeader('Content-Type', 'application/json');
 	}
 
-	// private static function ShowPDF($numeroRecibo)
-	// {
-	// 	$recibo = Recibo::TraerPorId($numeroRecibo)[0];
-	// 	$objPdf = $recibo->CrearPdf();
-	// 	$objPdf->Output();
-	// }
+	public static function verFacturaId($response,$args)
+	{
+		$id = $args['id'];
+		$factura = Factura::obtenerFactura($id);
+		if ($factura) {
+			$factura->generarPDF();
+			return $response;
+		} else {
+        	return $response->withStatus(404)->write('Factura no encontrada.');
+    	}
+	}
 
-	// private static function DownloadPDF($numeroRecibo)
-	// {
-	// 	$recibo = Recibo::TraerPorId($numeroRecibo)[0];
-	// 	$objPdf = $recibo->CrearPdf();
-	// 	$nombreArchivo = "recibo_" . $recibo->numero . ".pdf";
-	// 	$objPdf->Output("D", $nombreArchivo);
-	// }
 }

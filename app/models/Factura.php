@@ -1,6 +1,7 @@
 <?php
 
 include_once(__DIR__ . '/../db/AccesoDatos.php');
+include_once(__DIR__ . '/.././utils/FPDF//fpdf.php');
 
 class Factura
 {
@@ -45,43 +46,36 @@ class Factura
 		return $consulta->fetchAll(PDO::FETCH_COLUMN);
 	}
 
-	// protected function CrearPdf()
-	// {
-	// 	$pdf = new FPDF();
-	// 	$pdf->AddPage();
-	// 	$pdf->SetFont('Courier', 'BU', 35);
-	// 	$pdf->Cell(187.5, 30, "RECIBO", 1, 0, 'C');
-	// 	$pdf->Image(__DIR__ . '..\..\..\utn-logo.png', 11.25, null, 30, 30, 'png');
+	public function generarPDF() {
+        $pdf = new FPDF();
+        $pdf->AddPage();
 
-	// 	$pdf->SetFont('Arial', '', 18);
-	// 	$pdf->Cell(187.5, 10, "$this->fecha", 0, 1, 'R');
+        $pdf->SetFont('Arial', 'B', 14);
 
-	// 	$pdf->SetFont('Arial', 'I', 18);
-	// 	$pdf->Cell(187.5, 12, "#$this->numero", 0, 0, 'R');
+        $pdf->Cell(190, 10, 'Factura', 0, 1, 'C');
 
-	// 	$pdf->SetFont('Arial', '', 16);
-	// 	$pdf->Write(10, "Id del pedido: #{$this->idPedido}\n");
-	// 	$pdf->Write(10, "Cliente: {$this->cliente}\n");
+        $pdf->Ln(10);
 
-	// 	$pdf->SetFillColor(255, 239, 219);
-	// 	$pdf->Cell(15, 8, "ID", 1, 0, 'C', 1);
-	// 	$pdf->Cell(142.5, 8, "PRODUCTO", 1, 0, 'C', 1);
-	// 	$pdf->Cell(30, 8, "PRECIO", 1, 1, 'C', 1);
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell(30, 10, 'ID Factura:', 0, 0);
+        $pdf->Cell(50, 10, $this->id, 0, 1);
+        
+        $pdf->Cell(30, 10, 'Fecha:', 0, 0);
+        $pdf->Cell(50, 10, $this->fecha, 0, 1);
+        
+        $pdf->Cell(30, 10, 'Cliente:', 0, 0);
+        $pdf->Cell(50, 10, $this->cliente, 0, 1);
 
-	// 	$idProductos = ProductoPedido::TraerProdPorPedido($this->idPedido);
-	// 	foreach ($idProductos as $prodId) {
-	// 		$producto = Producto::TraerPorId($prodId)[0];
-	// 		$pdf->Cell(15, 8, "$producto->id", 1, 0, 'L', 1);
-	// 		$pdf->Cell(142.5, 8, "$producto->descripcion", 1, 0, 'L', 1);
-	// 		$pdf->Cell(30, 8, "\$$producto->precio", 1, 1, 'R', 1);
-	// 	}
+        $pdf->Cell(30, 10, 'Forma de Pago:', 0, 0);
+        $pdf->Cell(50, 10, $this->forma_pago, 0, 1);
 
-	// 	$pdf->SetFont('Arial', 'B', 16);
-	// 	$pdf->Cell(157.5, 10, "TOTAL", 1, 0, 'L');
-	// 	$pdf->Cell(30, 10, "\${$this->importe}", 1, 1, 'R');
-	// 	$pdf->Write(10, "Forma de pago: {$this->formaDePago}\n");
+        $pdf->Cell(30, 10, 'Importe:', 0, 0);
+        $pdf->Cell(50, 10, '$' . $this->importe, 0, 1);
 
-	// 	return $pdf;
-	// }
+        $pdf->Output('I', 'factura_' . $this->id . '.pdf');
+
+        // Para descargarlo
+        // $pdf->Output('D', 'factura_' . $this->id . '.pdf');
+    }
 
 }

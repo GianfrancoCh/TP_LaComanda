@@ -192,7 +192,7 @@ class PedidoController extends Pedido implements IApiUsable
     {
       $parametros = $request->getParsedBody();
       $pedido = Pedido::obtenerPedido($parametros['id_pedido']);
-      $uriFoto = Archivo::GuardarArchivo("db/fotos/", "{$parametros['id_pedido']}", 'foto', '.jpg');
+      $pathFoto = Archivo::GuardarArchivo("db/fotos/", "{$parametros['id_pedido']}", 'foto', '.jpg');
 
       $payload = json_encode(array("msg" => "Foto agregada con exito"));
       $response->getBody()->write($payload);

@@ -60,13 +60,17 @@ class PedidoController extends Pedido implements IApiUsable
 	}
     public function TraerUno($request, $response, $args)
     {
-        $id = $args['id'];
-        $producto = Pedido::obtenerPedido($id);
-        $payload = json_encode($producto);
+        $parametros = $request->getQueryParams();
+        $pedido = Pedido::obtenerPedido($parametros['id_pedido']);
+        if($pedido){
+          $payload = json_encode($pedido);
+        }else{
+          $payload = json_encode(array("msg" => "No existe pedido con ese ID"));
+        }
+        
 
         $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function TraerTodos($request, $response, $args)
@@ -200,4 +204,158 @@ class PedidoController extends Pedido implements IApiUsable
       return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public static function MasVendido($request, $response)
+    {
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+
+      if(isset($parametros['fecha']) && isset($parametros['fecha2']))
+      {
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT p.nombre, COUNT(*) AS cantidad_vendida FROM pedidos_productos pp
+            JOIN productos p ON pp.id_producto = p.id
+            JOIN pedidos ped ON pp.id_pedido = ped.id
+            WHERE ped.fecha BETWEEN :fecha AND :fecha2
+            GROUP BY pp.id_producto, p.nombre
+            ORDER BY cantidad_vendida DESC
+            LIMIT 1");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->bindParam(':fecha2', $parametros['fecha2']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else if(isset($parametros['fecha'])){
+
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT p.nombre, COUNT(*) AS cantidad_vendida FROM pedidos_productos pp
+            JOIN productos p ON pp.id_producto = p.id
+            JOIN pedidos ped ON pp.id_pedido = ped.id
+            WHERE ped.fecha = :fecha
+            GROUP BY pp.id_producto, p.nombre
+            ORDER BY cantidad_vendida DESC
+            LIMIT 1");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else{
+          $mensaje = "Faltan campos";
+          $payload = json_encode(array("mensaje" => $mensaje));
+          $response->getBody()->write($payload);
+      }
+
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+    public static function MenosVendido($request, $response)
+    {
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+
+      if(isset($parametros['fecha']) && isset($parametros['fecha2']))
+      {
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT p.nombre, COUNT(*) AS cantidad_vendida FROM pedidos_productos pp
+            JOIN productos p ON pp.id_producto = p.id
+            JOIN pedidos ped ON pp.id_pedido = ped.id
+            WHERE ped.fecha BETWEEN :fecha AND :fecha2
+            GROUP BY pp.id_producto, p.nombre
+            ORDER BY cantidad_vendida ASC
+            LIMIT 1");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->bindParam(':fecha2', $parametros['fecha2']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else if(isset($parametros['fecha'])){
+
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT p.nombre, COUNT(*) AS cantidad_vendida FROM pedidos_productos pp
+            JOIN productos p ON pp.id_producto = p.id
+            JOIN pedidos ped ON pp.id_pedido = ped.id
+            WHERE ped.fecha = :fecha
+            GROUP BY pp.id_producto, p.nombre
+            ORDER BY cantidad_vendida ASC
+            LIMIT 1");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else{
+          $mensaje = "Faltan campos";
+          $payload = json_encode(array("mensaje" => $mensaje));
+          $response->getBody()->write($payload);
+      }
+
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public static function EntregadosTarde($request, $response)
+    {
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+
+      if(isset($parametros['fecha']) && isset($parametros['fecha2']))
+      {
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT * FROM pedidos
+            WHERE tiempoEstimado < tiempoFinal
+            AND fecha BETWEEN :fecha AND :fecha2");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->bindParam(':fecha2', $parametros['fecha2']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else if(isset($parametros['fecha'])){
+
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT * FROM pedidos
+            WHERE tiempoEstimado < tiempoFinal
+            AND fecha = :fecha");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else{
+          $mensaje = "Faltan campos";
+          $payload = json_encode(array("mensaje" => $mensaje));
+          $response->getBody()->write($payload);
+      }
+
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public static function ObtenerCancelados($request, $response)
+    {
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+
+      if(isset($parametros['fecha']) && isset($parametros['fecha2']))
+      {
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT * FROM pedidos
+            WHERE estado = 'cancelado'
+            AND fecha BETWEEN :fecha AND :fecha2");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->bindParam(':fecha2', $parametros['fecha2']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else if(isset($parametros['fecha'])){
+
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT * FROM pedidos
+            WHERE estado = 'cancelado'
+            AND fecha = :fecha");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      }else{
+          $mensaje = "Faltan campos";
+          $payload = json_encode(array("mensaje" => $mensaje));
+          $response->getBody()->write($payload);
+      }
+
+      return $response->withHeader('Content-Type', 'application/json');
+    }
 }

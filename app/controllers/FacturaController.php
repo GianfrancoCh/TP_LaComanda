@@ -55,7 +55,8 @@ class FacturaController extends Factura
 		$factura = Factura::obtenerFactura($id);
 		if ($factura) {
 			$factura->generarPDF();
-			return $response;
+			// return $response;
+			return $response->withHeader('Content-Type', 'application/pdf');
 		} else {
         	return $response->withStatus(404)->write('Factura no encontrada.');
     	}

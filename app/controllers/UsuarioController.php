@@ -125,7 +125,7 @@ class UsuarioController extends Usuario implements IApiUsable
           JOIN productos p ON pp.id_producto = p.id
           JOIN pedidos ped ON pp.id_pedido = ped.id
           WHERE ped.fecha BETWEEN :fecha AND :fecha2
-          GROUP BY p.tipo
+          GROUP BY pp.responsable
           ORDER BY num_operaciones DESC");
           $consulta->bindParam(':fecha', $parametros['fecha']);
           $consulta->bindParam(':fecha2', $parametros['fecha2']);

@@ -60,6 +60,11 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
+  $group->get('/masVendido', \PedidoController::class . ':MasVendido')->add(new UsuarioSocioMiddleware());
+  $group->get('/menosVendido', \PedidoController::class . ':MenosVendido')->add(new UsuarioSocioMiddleware());
+  $group->get('/entregadosTarde', \PedidoController::class . ':EntregadosTarde')->add(new UsuarioSocioMiddleware());
+  $group->get('/cancelados', \PedidoController::class . ':ObtenerCancelados')->add(new UsuarioSocioMiddleware());
+  $group->get('/id', \PedidoController::class . ':TraerUno');
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
   $group->get('/{sector}', \PedidoController::class . ':TraerSector');
   $group->put('/tomarproductopedido', \PedidoController::class . ':TomarProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
@@ -67,7 +72,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->post('/tomarfoto', \PedidoController::class . ':TomarFoto')->add(new PedidoIdMiddleware())->add(new UsuarioMozoMiddleware());
   $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new ProductoIdMiddleware())->add(new MesaIdMiddleware())->add(new UsuarioMozoMiddleware());
   $group->post('/pedircuenta', \FacturaController::class . ':CargarUna')->add(new PedidoIdMiddleware())->add(new UsuarioMozoMiddleware());
-  $group->get('/verfactura/{id}', \FacturaController::class . ':verFacturaId')->add(new UsuarioMozoMiddleware());
+  $group->get('/verfactura/{id}', \FacturaController::class . ':verFacturaId');
   $group->post('/pagarcuenta', \FacturaController::class . ':PagarFactura')->add(new FacturaIdMiddleware())->add(new UsuarioMozoMiddleware());
 
 });
@@ -75,10 +80,18 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
 $app->group('/mesas', function (RouteCollectorProxy $group) {
   $group->post('/csv', \MesaController::class . ':SubirCsv')->add(new UsuarioSocioMiddleware());
   $group->get('/csv', \MesaController::class . ':DescargarCsv')->add(new UsuarioSocioMiddleware());
+  $group->get('/masUsada', \MesaController::class . ':MasUsada')->add(new UsuarioSocioMiddleware());
+  $group->get('/menosUsada', \MesaController::class . ':MenosUsada')->add(new UsuarioSocioMiddleware());
+  $group->get('/masFacturo', \MesaController::class . ':MasFacturo')->add(new UsuarioSocioMiddleware());
+  $group->get('/menosFacturo', \MesaController::class . ':MenosFacturo')->add(new UsuarioSocioMiddleware());
+  $group->get('/mayorImporte', \MesaController::class . ':MayorImporte')->add(new UsuarioSocioMiddleware());
+  $group->get('/menorImporte', \MesaController::class . ':MenorImporte')->add(new UsuarioSocioMiddleware());
+  $group->get('/mejorPuntuacion', \MesaController::class . ':MejorPuntuacion')->add(new UsuarioSocioMiddleware());
+  $group->get('/menorPuntuacion', \MesaController::class . ':MenorPuntuacion')->add(new UsuarioSocioMiddleware());
   $group->get('[/]', \MesaController::class . ':TraerTodos');
   $group->get('/{mesas}', \MesaController::class . ':TraerUno');
   $group->post('[/]', \MesaController::class . ':CargarUno')->add(new UsuarioSocioMiddleware());
-  
+  $group->put('/cerrarMesa', \MesaController::class . ':ModificarUno')->add(new UsuarioSocioMiddleware());
 });
 
 $app->group('/encuesta', function (RouteCollectorProxy $group) {

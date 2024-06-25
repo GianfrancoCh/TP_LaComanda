@@ -125,6 +125,25 @@ class Pedido
     		
 	}
 
+    public static function TraerMesasMasUsadas()
+	{
+		$objAccesoDatos = AccesoDatos::ObtenerInstancia();
+		$req = $objAccesoDatos->PrepararConsulta("
+		SELECT idMesa FROM pedidos
+		GROUP BY idMesa
+		HAVING COUNT(*) = (
+			SELECT COUNT(*)
+			FROM pedidos
+			GROUP BY idMesa
+			ORDER BY COUNT(*) DESC
+			LIMIT 1
+		);
+		");
+		$req->execute();
+
+		return $req->fetchAll(PDO::FETCH_COLUMN);
+	}
+
     
 
 }

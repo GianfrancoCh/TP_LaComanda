@@ -45,11 +45,12 @@ $app->addBodyParsingMiddleware();
 
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
+    $group->get('/obtenerLogs', \UsuarioController::class . ':ObtenerLogs')->add(new UsuarioSocioMiddleware());
+    $group->get('/operacionesPorSector', \UsuarioController::class . ':OperacionesPorSector')->add(new UsuarioSocioMiddleware());
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
     $group->post('[/]', \UsuarioController::class . ':CargarUno')->add(new CrearUsuarioRolMiddleware())->add(new UsuarioSocioMiddleware());
     $group->put('/modificarestado', \UsuarioController::class . ':ModificarUno')->add(new UsuarioSocioMiddleware());
-
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
@@ -86,9 +87,9 @@ $app->group('/encuesta', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/auth', function (RouteCollectorProxy $group) {
-
+  
   $group->post('/login', \UsuarioController::class . ':Login')->add(new UsuarioLoginMiddleware());
-
+  
 });
 
 

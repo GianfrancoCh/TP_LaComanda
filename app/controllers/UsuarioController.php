@@ -80,4 +80,80 @@ class UsuarioController extends Usuario implements IApiUsable
     }
 
 
+    //CONSULTAS
+    public static function ObtenerLogs($request, $response)
+    {
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+
+      if(isset($parametros['fecha']) && isset($parametros['fecha2']))
+      {
+        
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT u.usuario, l.timestamp FROM usuarios_logs l JOIN usuarios u ON l.id_usuario = u.id 
+        WHERE l.timestamp BETWEEN :fecha AND :fecha2 
+        ORDER BY l.timestamp DESC");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->bindParam(':fecha2', $parametros['fecha2']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+      }else if(isset($parametros['fecha'])){
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT u.usuario, l.timestamp FROM usuarios_logs l JOIN usuarios u ON l.id_usuario = u.id
+            WHERE DATE(l.timestamp) = :fecha
+            ORDER BY l.timestamp DESC");
+        $consulta->bindParam(':fecha', $parametros['fecha']);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+      }else{
+          $mensaje = "Faltan campos";
+          $payload = json_encode(array("mensaje" => $mensaje));
+          $response->getBody()->write($payload);
+      }
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public static function OperacionesPorSector($request, $response)
+    {
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+
+      if(isset($parametros['fecha']) && isset($parametros['fecha2']))
+      {
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT p.tipo AS sector, pp.responsable, COUNT(*) AS num_operaciones
+          FROM pedidos_productos pp
+          JOIN productos p ON pp.id_producto = p.id
+          JOIN pedidos ped ON pp.id_pedido = ped.id
+          WHERE ped.fecha BETWEEN :fecha AND :fecha2
+          GROUP BY p.tipo
+          ORDER BY num_operaciones DESC");
+          $consulta->bindParam(':fecha', $parametros['fecha']);
+          $consulta->bindParam(':fecha2', $parametros['fecha2']);
+          $consulta->execute();
+          $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+          $response->getBody()->write(json_encode($resultado));
+
+        }else if(isset($parametros['fecha'])){
+
+          $consulta = $objAccesoDatos->PrepararConsulta("SELECT p.tipo AS sector, pp.responsable, COUNT(*) AS num_operaciones
+          FROM pedidos_productos pp
+          JOIN productos p ON pp.id_producto = p.id
+          JOIN pedidos ped ON pp.id_pedido = ped.id
+          WHERE ped.fecha = :fecha
+          GROUP BY p.tipo
+          ORDER BY num_operaciones DESC");
+          $consulta->bindParam(':fecha', $parametros['fecha']);
+          $consulta->execute();
+          $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+          $response->getBody()->write(json_encode($resultado));
+
+        }else{
+            $mensaje = "Faltan campos";
+            $payload = json_encode(array("mensaje" => $mensaje));
+            $response->getBody()->write($payload);
+        }
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    
 }

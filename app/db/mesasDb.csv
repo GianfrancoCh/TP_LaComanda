@@ -3,8 +3,8 @@ id,estado
 10001,vacia
 10002,comiendo
 10009,vacia
-10010,esperando
-10011,pagando
+10010,vacia
+10011,vacia
 10012,vacia
 10013,vacia
 10014,vacia
@@ -13,4 +13,4 @@ id,estado
 10017,vacia
 10018,vacia
 10019,vacia
-10020,vacia
+10020,cerrada

@@ -13,6 +13,7 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
         $id_mesa = $parametros['id_mesa'];
         $id_producto = $parametros['id_producto'];
+        
         $cliente = $parametros['cliente'];
         // $foto = $parametros['foto'];
         $fecha = date("Y-m-d");
@@ -23,18 +24,23 @@ class PedidoController extends Pedido implements IApiUsable
 
         if(isset($parametros['id_pedido'])){
 
-          $id_pedido = $parametros['id_pedido'];
-          $pedido = Pedido::obtenerPedido($id_pedido);
-          $nuevoPrecio = $pedido->precio + $producto->precio;
-          Pedido::modificarPrecioPedido($id_pedido,$nuevoPrecio);
-          self::AgregarPedidoProducto($id_pedido, $id_producto);
-          $mensaje = "Producto añadido al pedido existente con ID: $id_pedido";
-          
+          $id_pedido_params = $parametros['id_pedido'];
+          if(Pedido::obtenerPedido($id_pedido_params)){
+            $id_pedido = $parametros['id_pedido'];
+            $pedido = Pedido::obtenerPedido($id_pedido);
+            $nuevoPrecio = $pedido->precio + $producto->precio;
+            Pedido::modificarPrecioPedido($id_pedido,$nuevoPrecio);
+            self::AgregarPedidoProducto($id_pedido, $id_producto);
+            $mensaje = "Producto añadido al pedido existente con ID: $id_pedido";
+          }else{
+
+            $mensaje = "No existe pedido con ID: " . $id_pedido_params;
+          }
+   
         }else{
           $pedido = new Pedido();
           $pedido->id_mesa = $id_mesa;
           $pedido->cliente = $cliente;
-          // $pedido->foto = $foto;
           $pedido->fecha = $fecha;
           $pedido->precio = $precio;
 
@@ -173,10 +179,41 @@ class PedidoController extends Pedido implements IApiUsable
 					$payload = json_encode(array("msg" => "Pedido " . $id_pedido." listo!"));
           
 					$pedido = Pedido::obtenerPedido($id_pedido);
-					Mesa::modificarMesa($pedido->id_mesa, 'comiendo');
 				}else{
 
           $payload = json_encode(array("mensaje" => "Producto marcado como listo por " . $empleado));
+        }
+        
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+
+    public function ServirPedido($request, $response, $args)
+    {
+
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+
+        $parametros = $request->getParsedBody();
+        $id_pedido = $parametros['id_pedido'];
+
+        $datos = array('datos' => AutentificadorJWT::ObtenerData($token));
+        $empleado = $datos['datos']->usuario;
+        $estado = "comiendo";       
+
+        $pedido = Pedido::obtenerPedido($id_pedido);
+
+        if ($pedido->estado == 'listo') {
+
+					Pedido::modificarPedido($id_pedido, 'comiendo');
+          Mesa::modificarMesa($pedido->id_mesa, 'comiendo');
+					$payload = json_encode(array("msg" => "Pedido '$id_pedido' servido por '$empleado'!"));
+          
+			
+				}else{
+
+          $payload = json_encode(array("mensaje" => "El pedido '$id_pedido' no esta listo para servir"));
         }
         
         $response->getBody()->write($payload);

@@ -71,6 +71,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->put('/listoproductopedido', \PedidoController::class . ':ListoProductoPedido')->add(new UsuarioRolMiddleware())->add(new ProductoEnPedidoMiddleware())->add(new ProductoIdMiddleware())->add(new PedidoIdMiddleware());
   $group->post('/tomarfoto', \PedidoController::class . ':TomarFoto')->add(new PedidoIdMiddleware())->add(new UsuarioMozoMiddleware());
   $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new ProductoIdMiddleware())->add(new MesaIdMiddleware())->add(new UsuarioMozoMiddleware());
+  $group->put('/servir', \PedidoController::class . ':ServirPedido')->add(new PedidoIdMiddleware());
   $group->post('/pedircuenta', \FacturaController::class . ':CargarUna')->add(new PedidoIdMiddleware())->add(new UsuarioMozoMiddleware());
   $group->get('/verfactura/{id}', \FacturaController::class . ':verFacturaId');
   $group->post('/pagarcuenta', \FacturaController::class . ':PagarFactura')->add(new FacturaIdMiddleware())->add(new UsuarioMozoMiddleware());

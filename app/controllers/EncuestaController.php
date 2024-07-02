@@ -2,7 +2,7 @@
 require_once './models/Encuesta.php';
 require_once './interfaces/IApiUsable.php';
 
-class EncuestaController extends Encuesta implements IApiUsable
+class EncuestaController extends Encuesta
 {
     public function CargarUno($request, $response, $args)
     {
@@ -54,20 +54,24 @@ class EncuestaController extends Encuesta implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
     
-    public function ModificarUno($request, $response, $args)
+
+    public static function MejoresComentarios($request, $response)
     {
-        $parametros = $request->getParsedBody();
-        $id = $parametros['id'];
-        $usuario = $parametros['usuario'];
-        $clave = $parametros['clave'];
-        $rol = $parametros['rol'];
-        Usuario::modificarUsuario($id,$usuario,$clave,$rol);
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
 
-        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+      
+      $consulta = $objAccesoDatos->PrepararConsulta("SELECT *, (puntuacionMesa + puntuacionMozo + puntuacionRestaurante + puntuacionCocinero) AS puntuacionTotal
+          FROM encuestas
+          ORDER BY puntuacionTotal DESC
+          LIMIT 1");
 
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+      $consulta->execute();
+      $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+      $response->getBody()->write(json_encode($resultado));
+
+      
+      return $response->withHeader('Content-Type', 'application/json');
     }
 
 

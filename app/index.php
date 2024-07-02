@@ -64,6 +64,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
   $group->get('/menosVendido', \PedidoController::class . ':MenosVendido')->add(new UsuarioSocioMiddleware());
   $group->get('/entregadosTarde', \PedidoController::class . ':EntregadosTarde')->add(new UsuarioSocioMiddleware());
   $group->get('/cancelados', \PedidoController::class . ':ObtenerCancelados')->add(new UsuarioSocioMiddleware());
+  $group->get('/listos', \PedidoController::class . ':ObtenerListos')->add(new UsuarioMozoMiddleware());
   $group->get('/id', \PedidoController::class . ':TraerUno');
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
   $group->get('/{sector}', \PedidoController::class . ':TraerSector');

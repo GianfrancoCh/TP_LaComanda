@@ -361,6 +361,20 @@ class PedidoController extends Pedido implements IApiUsable
       return $response->withHeader('Content-Type', 'application/json');
     }
 
+
+    public static function ObtenerListos($request, $response)
+    {
+      $parametros = $request->getQueryParams();
+      $objAccesoDatos = AccesoDatos::obtenerInstancia();
+
+      
+        $consulta = $objAccesoDatos->PrepararConsulta("SELECT * FROM pedidos WHERE estado = 'listo'");
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $response->getBody()->write(json_encode($resultado));
+
+      return $response->withHeader('Content-Type', 'application/json');
+    }
     public static function ObtenerCancelados($request, $response)
     {
       $parametros = $request->getQueryParams();
